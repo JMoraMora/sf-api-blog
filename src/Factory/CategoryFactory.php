@@ -64,5 +64,5 @@ final class CategoryFactory extends ModelFactory
     protected static function getClass(): string
     {
         return Category::class;
-    } 
+    }
 }
