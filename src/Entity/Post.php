@@ -7,6 +7,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post as Store;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use App\Repository\PostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,6 +37,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     paginationItemsPerPage: 5,
 )]
+#[ApiFilter(SearchFilter::class, properties: [
+    'title' => 'partial', // exacto, parcial, incio, fin, word_start
+    'body' => 'partial',
+    'category.name' => 'partial',
+])]
+#[ApiFilter(OrderFilter::class, properties: ['id'])]
 class Post
 {
     #[ORM\Id]
