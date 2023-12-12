@@ -10,15 +10,27 @@ use ApiPlatform\Metadata\Post as Store;
 use App\Repository\PostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(
+            normalizationContext: [
+                'groups' => ['read', 'read:item'],
+            ],
+        ),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => ['read', 'read:collection'],
+            ],
+        ),
         new Store(),
         new Patch(),
-    ]
+    ],
+    denormalizationContext: [
+        'groups' => ['write'],
+    ],
 )]
 class Post
 {
@@ -28,13 +40,16 @@ class Post
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['read:item', 'write'])]
     private ?string $body = null;
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read', 'write'])]
     private ?Category $category = null;
 
     public function getId(): ?int
@@ -74,7 +89,15 @@ class Post
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
-
         return $this;
+    }
+
+    #[Groups(['read:collection'])]
+    public function getSummary(int $len = 70): ?string
+    {
+        if (mb_strlen($this->body) <= $len) {
+            return $this->body;
+        }
+        return substr($this->body, 0, 70) . '[...]';
     }
 }
