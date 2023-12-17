@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
+    description: 'A category of the blog',
     operations: [
         new Get(),
         new GetCollection(),
@@ -25,14 +26,23 @@ class Category
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['category:read', 'post:read'])]
+    /**
+     * Identifier of the category
+     */
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['category:read', 'post:read'])]
+    /**
+     * Name of the category
+     */
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Post::class, orphanRemoval: true)]
     #[Groups(['category:read'])]
+    /**
+     * Posts of the category
+     */
     private Collection $posts;
 
     public function __construct()
